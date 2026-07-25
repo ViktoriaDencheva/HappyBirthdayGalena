@@ -29,9 +29,12 @@
       el.style.left = wide ? `${Math.random() * 100}%` : `${45 + Math.random() * 10}%`;
       el.style.top = wide ? `${Math.random() * 18}%` : '20%';
       el.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
-      el.style.width = `${5 + Math.random() * 5}px`;
-      el.style.height = `${8 + Math.random() * 6}px`;
-      el.style.borderRadius = Math.random() < 0.5 ? '50%' : '2px';
+      el.style.width = `${4 + Math.random() * 6}px`;
+      el.style.height = `${9 + Math.random() * 7}px`;
+      el.style.borderRadius = '0';
+      if (Math.random() < 0.35) {
+        el.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+      }
       el.style.animationDuration = `${wide ? 1.6 + Math.random() * 1.4 : 1.1 + Math.random() * 0.9}s`;
       el.style.animationDelay = `${Math.random() * (wide ? 0.5 : 0.15)}s`;
       layer.appendChild(el);
@@ -176,6 +179,7 @@
   const revealBtn = document.getElementById('reveal-btn');
   const bottle = document.getElementById('bottle');
   const cork = document.getElementById('cork');
+  const neckFlash = document.getElementById('neck-flash');
   const confettiLayer1 = document.getElementById('confetti-layer-1');
   const bubbleLayer1 = document.getElementById('bubble-layer-1');
   const number26 = document.getElementById('number-26');
@@ -194,13 +198,14 @@
 
     setTimeout(() => {
       cork.classList.add('pop');
-      spawnBubbles(bubbleLayer1, 16);
-      spawnConfetti(confettiLayer1, 90, { wide: true });
+      neckFlash.classList.add('flash');
+      spawnBubbles(bubbleLayer1, 24);
+      spawnConfetti(confettiLayer1, 140, { wide: true });
       playPopSound();
     }, t.pop);
 
     setTimeout(() => {
-      spawnConfetti(confettiLayer1, 60, { wide: true });
+      spawnConfetti(confettiLayer1, 90, { wide: true });
     }, t.pop + 380);
 
     setTimeout(() => bottle.classList.add('settle'), t.settle);
@@ -274,6 +279,51 @@
 
   revealTargets.forEach((el) => io.observe(el));
 
+  /* ---------- glass "clink" sound, fully separate from bgm ----------
+     Drop an optional assets/clink.mp3 for a real recording; otherwise
+     two quick bright synthesized tones are used automatically. */
+  function playSynthClink() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const ring = (freq, start, dur, vol) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+        gain.gain.setValueAtTime(0.0001, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + start + 0.008);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + start + dur);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(ctx.currentTime + start);
+        osc.stop(ctx.currentTime + start + dur + 0.05);
+      };
+      ring(2600, 0, 0.5, 0.18);
+      ring(3900, 0.01, 0.45, 0.12);
+      ring(2300, 0.06, 0.4, 0.1);
+      setTimeout(() => ctx.close(), 700);
+    } catch (e) { /* ignore */ }
+  }
+
+  function playClinkSound() {
+    let fellBack = false;
+    const fallback = () => {
+      if (fellBack) return;
+      fellBack = true;
+      playSynthClink();
+    };
+    try {
+      const real = new Audio('assets/clink.mp3');
+      real.volume = 0.9;
+      real.addEventListener('error', fallback, { once: true });
+      const p = real.play();
+      if (p && typeof p.then === 'function') p.catch(fallback);
+    } catch (e) {
+      fallback();
+    }
+  }
+
   /* ---------- final toast interaction ---------- */
   const toastBtn = document.getElementById('toast-btn');
   const glassesWrap = document.getElementById('glasses-wrap');
@@ -291,6 +341,7 @@
 
     setTimeout(() => {
       spawnConfetti(confettiLayer2, 20);
+      playClinkSound();
     }, 420);
 
     setTimeout(() => {
