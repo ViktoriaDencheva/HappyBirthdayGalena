@@ -479,56 +479,6 @@ img{max-width:100%;display:block;}
   100%{ transform:translateX(0) rotate(0deg) scale(1); opacity:1; }
 }
 
-/* candle flames above the digits */
-.digit-wrap{ position:relative; display:inline-block; }
-.flame{
-  position:absolute;
-  bottom:100%;
-  left:50%;
-  width:.19em;
-  height:.4em;
-  margin-left:-.095em;
-  margin-bottom:-.02em;
-  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-  transform-origin:50% 92%;
-  transform:rotate(-2deg) scale(.3);
-  opacity:0;
-  background:radial-gradient(ellipse 65% 85% at 50% 88%, #fffaf0 0%, #ffedb0 16%, #ffcf6b 34%, #ff9d3d 56%, #d95a20 78%, rgba(160,40,15,0) 96%);
-  filter:blur(.3px) drop-shadow(0 0 .15em rgba(255,140,50,.5));
-  pointer-events:none;
-}
-.flame-core{
-  position:absolute;
-  left:50%;
-  bottom:6%;
-  width:44%;
-  height:52%;
-  margin-left:-22%;
-  border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
-  background:radial-gradient(ellipse 60% 80% at 50% 92%, #ffffff 0%, #fff3c4 32%, #ffcf6b 65%, rgba(255,150,60,0) 100%);
-  opacity:.75;
-}
-.number-26.show .flame-1{
-  animation:flame-appear .5s ease forwards .7s, flame-flicker 3.4s ease-in-out infinite 1.2s;
-}
-.number-26.show .flame-2{
-  animation:flame-appear .5s ease forwards .85s, flame-flicker 2.9s ease-in-out infinite 1.35s;
-}
-@keyframes flame-appear{
-  0%{ opacity:0; transform:rotate(-2deg) scale(.3) translateY(6px); }
-  100%{ opacity:1; transform:rotate(-2deg) scale(1) translateY(0); }
-}
-@keyframes flame-flicker{
-  0%{ transform:rotate(-2deg) scaleY(1) scaleX(1); opacity:.94; }
-  13%{ transform:rotate(-4deg) scaleY(.98) scaleX(1.015); opacity:1; }
-  27%{ transform:rotate(1deg) scaleY(1.02) scaleX(.985); opacity:.88; }
-  41%{ transform:rotate(-3deg) scaleY(.99) scaleX(1.01); opacity:.97; }
-  55%{ transform:rotate(2deg) scaleY(1.015) scaleX(.99); opacity:.91; }
-  69%{ transform:rotate(-1deg) scaleY(1) scaleX(1.005); opacity:1; }
-  84%{ transform:rotate(-3deg) scaleY(.985) scaleX(1); opacity:.9; }
-  100%{ transform:rotate(-2deg) scaleY(1) scaleX(1); opacity:.94; }
-}
-
 .bday-text{
   margin-top:18px;
   font-family:var(--serif);
