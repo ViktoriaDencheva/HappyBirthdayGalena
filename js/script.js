@@ -195,15 +195,26 @@
   const confettiLayer1 = document.getElementById('confetti-layer-1');
   const bubbleLayer1 = document.getElementById('bubble-layer-1');
   const number26 = document.getElementById('number-26');
+  const numberWrap = document.querySelector('.number-wrap');
   const bdayText = document.getElementById('bday-text');
   const scrollHint = document.getElementById('scroll-hint');
 
   let celebrationStarted = false;
 
+  function centerNumberBlock() {
+    if (reducedMotion) return;
+    const rect = numberWrap.getBoundingClientRect();
+    const viewportH = window.innerHeight;
+    const currentCenter = rect.top + rect.height / 2;
+    const desiredCenter = viewportH / 2;
+    const delta = desiredCenter - currentCenter;
+    numberWrap.style.transform = `translateY(${delta.toFixed(1)}px)`;
+  }
+
   function runCelebrationSequence() {
     const t = reducedMotion
-      ? { rise: 0, shake: 0, pop: 50, settle: 100, number: 150, text: 200, textExit: 250, hint: 300 }
-      : { rise: 300, shake: 900, pop: 1350, settle: 1400, number: 1900, text: 2500, textExit: 4100, hint: 4750 };
+      ? { rise: 0, shake: 0, pop: 50, settle: 100, number: 150, text: 200, center: 250, hint: 300 }
+      : { rise: 300, shake: 900, pop: 1350, settle: 1400, number: 1900, text: 2500, center: 3400, hint: 4600 };
 
     setTimeout(() => bottle.classList.add('rise'), t.rise);
     setTimeout(() => bottle.classList.add('shake'), t.shake);
@@ -223,7 +234,7 @@
     setTimeout(() => bottle.classList.add('settle'), t.settle);
     setTimeout(() => number26.classList.add('show'), t.number);
     setTimeout(() => bdayText.classList.add('show'), t.text);
-    setTimeout(() => bdayText.classList.add('exit'), t.textExit);
+    setTimeout(() => centerNumberBlock(), t.center);
     setTimeout(() => scrollHint.classList.add('show'), t.hint);
   }
 
@@ -337,6 +348,21 @@
     }
   }
 
+  /* ---------- gently duck bgm volume, e.g. while the glasses clink ----------
+     Uses setInterval rather than requestAnimationFrame: rAF is throttled
+     or fully paused whenever the tab/pane isn't actively compositing
+     frames, which would silently break the fade. */
+  function fadeAudioVolume(audio, target, duration) {
+    const start = audio.volume;
+    const startTime = Date.now();
+    const stepMs = 30;
+    const iv = setInterval(() => {
+      const p = Math.min(1, (Date.now() - startTime) / duration);
+      audio.volume = start + (target - start) * p;
+      if (p >= 1) clearInterval(iv);
+    }, stepMs);
+  }
+
   /* ---------- final toast interaction ---------- */
   const toastBtn = document.getElementById('toast-btn');
   const glassesWrap = document.getElementById('glasses-wrap');
@@ -353,10 +379,17 @@
     ensureAudioCtx();
     glassesWrap.classList.add('clinked');
 
+    const bgmWasPlaying = !bgm.paused;
+    if (bgmWasPlaying) fadeAudioVolume(bgm, 0.12, 250);
+
     setTimeout(() => {
       spawnConfetti(confettiLayer2, 20);
       playClinkSound();
     }, 420);
+
+    if (bgmWasPlaying) {
+      setTimeout(() => fadeAudioVolume(bgm, 1, 900), 2200);
+    }
 
     setTimeout(() => {
       finalText.classList.add('show');
