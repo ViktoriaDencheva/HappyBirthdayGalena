@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a0a10">
+<title>Честит рожден ден, Гале 🥂</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="locked">
+
+  <!-- Ambient background layer: floats behind everything, spans whole page -->
+  <div class="ambient" id="ambient" aria-hidden="true"></div>
+
+  <!-- Sound toggle: independent of everything else -->
+  <button id="sound-toggle" class="sound-toggle" type="button" aria-pressed="false" aria-label="Включи музиката">
+    <svg class="icon icon-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/><path d="M18.8 6.2a8.5 8.5 0 0 1 0 11.6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
+    <svg class="icon icon-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 5V4L8 9H4z" fill="currentColor"/><path d="M15.8 9.2l5 5.6M20.8 9.2l-5 5.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+  </button>
+
+  <!-- Intro overlay -->
+  <section id="scene-intro" class="scene scene-intro">
+    <div class="intro-inner">
+      <p class="eyebrow">За теб, с обич</p>
+      <h1 class="intro-title">Гале,<br>имаме нещо<br>за теб&hellip;</h1>
+      <button id="reveal-btn" class="primary-btn" type="button">Виж изненадата</button>
+      <p class="hint">Натисни, когато си готова ✨</p>
+    </div>
+  </section>
+
+  <main id="content">
+
+    <!-- Champagne celebration -->
+    <section id="scene-celebration" class="scene scene-celebration">
+      <div class="bottle-stage">
+        <div class="confetti-layer" id="confetti-layer-1" aria-hidden="true"></div>
+        <div class="bubble-layer" id="bubble-layer-1" aria-hidden="true"></div>
+
+        <div class="bottle" id="bottle">
+          <svg viewBox="0 0 120 340" class="bottle-svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#4a1120"/>
+                <stop offset="45%" stop-color="#7a2440"/>
+                <stop offset="100%" stop-color="#2a0a14"/>
+              </linearGradient>
+              <linearGradient id="glassShine" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#f5e9d9" stop-opacity="0"/>
+                <stop offset="50%" stop-color="#f5e9d9" stop-opacity=".35"/>
+                <stop offset="100%" stop-color="#f5e9d9" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M48,6 h24 v34 c0,9 16,16 16,42 v216 a12,12 0 0 1-12,12 h-32 a12,12 0 0 1-12-12 v-216 c0-26 16-33 16-42 z" fill="url(#glassGrad)" stroke="#1a0a10" stroke-width="1.5"/>
+            <path d="M56,44 v230" stroke="url(#glassShine)" stroke-width="6" stroke-linecap="round"/>
+          </svg>
+          <div class="cork" id="cork"></div>
+        </div>
+      </div>
+
+      <div class="number-wrap">
+        <div class="number-26" id="number-26" aria-hidden="true">
+          <span class="digit d2">2</span><span class="digit d6">6</span>
+        </div>
+        <p class="bday-text" id="bday-text">Честит рожден ден, Гале!</p>
+      </div>
+
+      <div class="scroll-hint" id="scroll-hint">
+        <span>Продължи надолу</span>
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </section>
+
+    <!-- Photo -->
+    <section id="scene-photo" class="scene content-scene">
+      <h2 class="section-title reveal-up">За още една година, изпълнена с&hellip;</h2>
+
+      <div class="photo-frame reveal-up">
+        <img src="assets/photo.jpg" alt="Обща снимка" id="main-photo">
+        <div class="photo-fallback">
+          <span>Тук ще бъде нашата снимка</span>
+        </div>
+      </div>
+
+      <ul class="word-list" id="word-list">
+        <li>любов</li>
+        <li>приключения</li>
+        <li>смях</li>
+        <li>незабравими моменти</li>
+        <li>сбъднати мечти</li>
+      </ul>
+    </section>
+
+    <!-- Wish -->
+    <section id="scene-wish" class="scene content-scene">
+      <div class="wish-card">
+        <p class="wish-p">Гале,</p>
+        <p class="wish-p">пожелаваме ти да бъдеш винаги толкова усмихната, сияйна и обичана!</p>
+        <p class="wish-p">Нека 26 бъде година на красиви преживявания, незабравими приключения, много смях и сбъднати мечти. Пожелаваме ти да бъдеш заобиколена от хора, с които можеш да бъдеш истински щастлива, и всеки нов ден да ти носи още един повод за усмивка.</p>
+        <p class="wish-p">Бъди здрава, обичана и все така прекрасна!</p>
+        <p class="wish-p wish-strong">Честит 26-и рожден ден!</p>
+        <p class="wish-signature">С много обич,<br>от всички нас</p>
+      </div>
+    </section>
+
+    <!-- Toast -->
+    <section id="scene-toast" class="scene content-scene">
+      <h2 class="section-title reveal-up">За най-хубавата ти година досега</h2>
+
+      <div class="glasses-wrap" id="glasses-wrap">
+        <div class="confetti-layer" id="confetti-layer-2" aria-hidden="true"></div>
+        <div class="sparkle" id="sparkle" aria-hidden="true"></div>
+        <svg class="glass glass-left" viewBox="0 0 60 160" aria-hidden="true">
+          <path d="M10,6 h40 l-14,70 v66 h-12 v-66 z" fill="none" stroke="#e8d9c4" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M14,10 h32 l-11.5,64 h-9 z" fill="#c98a9a" fill-opacity=".55"/>
+          <line x1="18" y1="142" x2="42" y2="142" stroke="#e8d9c4" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <svg class="glass glass-right" viewBox="0 0 60 160" aria-hidden="true">
+          <path d="M10,6 h40 l-14,70 v66 h-12 v-66 z" fill="none" stroke="#e8d9c4" stroke-width="2.2" stroke-linejoin="round"/>
+          <path d="M14,10 h32 l-11.5,64 h-9 z" fill="#c98a9a" fill-opacity=".55"/>
+          <line x1="18" y1="142" x2="42" y2="142" stroke="#e8d9c4" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <button id="toast-btn" class="primary-btn" type="button">Наздраве!</button>
+      <p class="final-text" id="final-text">Обичаме те, Гале!</p>
+    </section>
+
+  </main>
+
+  <audio id="bgm" src="assets/music.mp3" loop preload="none"></audio>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
