@@ -660,8 +660,9 @@ img{max-width:100%;display:block;}
   max-width:260px;
 }
 .glass{
-  width:70px;
-  height:auto;
+  width:auto;
+  height:155px;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.45));
   transition:transform .55s cubic-bezier(.25,.7,.3,1.2);
 }
 .glass-left{ transform:translateX(6px) rotate(-3deg); }
