@@ -306,7 +306,7 @@ img{max-width:100%;display:block;}
 
 .cork{
   position:absolute;
-  top:6%;
+  top:1%;
   left:50%;
   width:16px;
   height:20px;
@@ -356,11 +356,11 @@ img{max-width:100%;display:block;}
 }
 
 /* confetti */
-.confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:visible; }
+.confetti-layer{ position:absolute; inset:0; pointer-events:none; overflow:visible; z-index:3; }
 .confetti{
   position:absolute;
-  top:20%;
-  left:50%;
+  top:0;
+  left:0;
   width:8px;
   height:12px;
   opacity:0;

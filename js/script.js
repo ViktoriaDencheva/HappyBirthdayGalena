@@ -14,25 +14,26 @@
   /* ---------- confetti / bubble palette ---------- */
   const CONFETTI_COLORS = ['#f5e9d9', '#d9b98a', '#5c1a2b', '#ffffff', '#e8b4c0'];
 
-  function spawnConfetti(layer, count) {
+  function spawnConfetti(layer, count, { wide = false } = {}) {
     if (!layer) return;
     const n = reducedMotion ? 0 : count;
     for (let i = 0; i < n; i++) {
       const el = document.createElement('span');
       el.className = 'confetti';
-      const angle = (Math.random() * 2 - 1) * 100; // horizontal spread
-      const dist = 120 + Math.random() * 160;
-      const rot = 180 + Math.random() * 540 * (Math.random() < 0.5 ? -1 : 1);
+      const angle = wide ? (Math.random() * 2 - 1) * 60 : (Math.random() * 2 - 1) * 100;
+      const dist = wide ? 260 + Math.random() * 340 : 120 + Math.random() * 160;
+      const rot = 220 + Math.random() * 500 * (Math.random() < 0.5 ? -1 : 1);
       el.style.setProperty('--cx', `${angle}px`);
       el.style.setProperty('--cy', `${dist}px`);
       el.style.setProperty('--cr', `${rot}deg`);
-      el.style.left = `${45 + Math.random() * 10}%`;
+      el.style.left = wide ? `${Math.random() * 100}%` : `${45 + Math.random() * 10}%`;
+      el.style.top = wide ? `${Math.random() * 18}%` : '20%';
       el.style.background = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)];
       el.style.width = `${5 + Math.random() * 5}px`;
       el.style.height = `${8 + Math.random() * 6}px`;
       el.style.borderRadius = Math.random() < 0.5 ? '50%' : '2px';
-      el.style.animationDuration = `${1.1 + Math.random() * 0.9}s`;
-      el.style.animationDelay = `${Math.random() * 0.15}s`;
+      el.style.animationDuration = `${wide ? 1.6 + Math.random() * 1.4 : 1.1 + Math.random() * 0.9}s`;
+      el.style.animationDelay = `${Math.random() * (wide ? 0.5 : 0.15)}s`;
       layer.appendChild(el);
       el.addEventListener('animationend', () => el.remove());
     }
@@ -120,25 +121,54 @@
     }
   });
 
-  /* ---------- tiny synthesized "pop" sound, fully separate from bgm ---------- */
-  function playPopSound() {
+  /* ---------- cork "pop" sound, fully separate from bgm ----------
+     Drop an optional assets/pop.mp3 for a real recorded pop; otherwise
+     a synthesized noise-burst crack is used automatically. */
+  function playSynthPop() {
     try {
       const Ctx = window.AudioContext || window.webkitAudioContext;
       if (!Ctx) return;
       const ctx = new Ctx();
-      const osc = ctx.createOscillator();
+      const duration = 0.16;
+      const bufferSize = Math.floor(ctx.sampleRate * duration);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / bufferSize, 2.2);
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      const bandpass = ctx.createBiquadFilter();
+      bandpass.type = 'bandpass';
+      bandpass.frequency.setValueAtTime(2400, ctx.currentTime);
+      bandpass.frequency.exponentialRampToValueAtTime(500, ctx.currentTime + duration);
+      bandpass.Q.value = 0.8;
       const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(180, ctx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(760, ctx.currentTime + 0.09);
-      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
-      osc.connect(gain).connect(ctx.destination);
-      osc.start();
-      osc.stop(ctx.currentTime + 0.3);
-      osc.onended = () => ctx.close();
+      gain.gain.setValueAtTime(1, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+      noise.connect(bandpass).connect(gain).connect(ctx.destination);
+      noise.start();
+      noise.stop(ctx.currentTime + duration);
+      noise.onended = () => ctx.close();
     } catch (e) { /* ignore */ }
+  }
+
+  function playPopSound() {
+    let fellBack = false;
+    const fallback = () => {
+      if (fellBack) return;
+      fellBack = true;
+      playSynthPop();
+    };
+    try {
+      const real = new Audio('assets/pop.mp3');
+      real.volume = 0.9;
+      real.addEventListener('error', fallback, { once: true });
+      const p = real.play();
+      if (p && typeof p.then === 'function') p.catch(fallback);
+    } catch (e) {
+      fallback();
+    }
   }
 
   /* ---------- intro reveal -> celebration sequence ---------- */
@@ -165,9 +195,13 @@
     setTimeout(() => {
       cork.classList.add('pop');
       spawnBubbles(bubbleLayer1, 16);
-      spawnConfetti(confettiLayer1, 42);
+      spawnConfetti(confettiLayer1, 90, { wide: true });
       playPopSound();
     }, t.pop);
+
+    setTimeout(() => {
+      spawnConfetti(confettiLayer1, 60, { wide: true });
+    }, t.pop + 380);
 
     setTimeout(() => bottle.classList.add('settle'), t.settle);
     setTimeout(() => number26.classList.add('show'), t.number);
@@ -183,6 +217,13 @@
     introScene.classList.add('hide');
     document.documentElement.classList.remove('locked');
     document.body.classList.remove('locked');
+
+    bgm.play().then(() => {
+      soundToggle.setAttribute('aria-pressed', 'true');
+      soundToggle.setAttribute('aria-label', 'Спри музиката');
+    }).catch(() => {
+      /* file missing or autoplay blocked - user can still start it via the toggle */
+    });
 
     runCelebrationSequence();
   });
