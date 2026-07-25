@@ -124,14 +124,27 @@
     }
   });
 
+  /* ---------- shared AudioContext, unlocked on the actual user gesture ----------
+     Sounds fired from inside a setTimeout (e.g. mid-animation) are NOT
+     considered part of the original click by browser autoplay policy, so
+     the context must be created/resumed synchronously in the click
+     handler itself and then simply reused later. */
+  let sharedAudioCtx = null;
+  function ensureAudioCtx() {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    if (!sharedAudioCtx) sharedAudioCtx = new Ctx();
+    if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume();
+    return sharedAudioCtx;
+  }
+
   /* ---------- cork "pop" sound, fully separate from bgm ----------
      Drop an optional assets/pop.mp3 for a real recorded pop; otherwise
      a synthesized noise-burst crack is used automatically. */
   function playSynthPop() {
     try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      const ctx = new Ctx();
+      const ctx = ensureAudioCtx();
+      if (!ctx) return;
       const duration = 0.16;
       const bufferSize = Math.floor(ctx.sampleRate * duration);
       const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -152,7 +165,6 @@
       noise.connect(bandpass).connect(gain).connect(ctx.destination);
       noise.start();
       noise.stop(ctx.currentTime + duration);
-      noise.onended = () => ctx.close();
     } catch (e) { /* ignore */ }
   }
 
@@ -190,8 +202,8 @@
 
   function runCelebrationSequence() {
     const t = reducedMotion
-      ? { rise: 0, shake: 0, pop: 50, settle: 100, number: 150, text: 200, hint: 250 }
-      : { rise: 0, shake: 950, pop: 1550, settle: 1600, number: 2100, text: 2750, hint: 3450 };
+      ? { rise: 0, shake: 0, pop: 50, settle: 100, number: 150, text: 200, textExit: 250, hint: 300 }
+      : { rise: 300, shake: 900, pop: 1350, settle: 1400, number: 1900, text: 2500, textExit: 4100, hint: 4750 };
 
     setTimeout(() => bottle.classList.add('rise'), t.rise);
     setTimeout(() => bottle.classList.add('shake'), t.shake);
@@ -211,6 +223,7 @@
     setTimeout(() => bottle.classList.add('settle'), t.settle);
     setTimeout(() => number26.classList.add('show'), t.number);
     setTimeout(() => bdayText.classList.add('show'), t.text);
+    setTimeout(() => bdayText.classList.add('exit'), t.textExit);
     setTimeout(() => scrollHint.classList.add('show'), t.hint);
   }
 
@@ -222,6 +235,8 @@
     introScene.classList.add('hide');
     document.documentElement.classList.remove('locked');
     document.body.classList.remove('locked');
+
+    ensureAudioCtx();
 
     bgm.play().then(() => {
       soundToggle.setAttribute('aria-pressed', 'true');
@@ -284,9 +299,8 @@
      two quick bright synthesized tones are used automatically. */
   function playSynthClink() {
     try {
-      const Ctx = window.AudioContext || window.webkitAudioContext;
-      if (!Ctx) return;
-      const ctx = new Ctx();
+      const ctx = ensureAudioCtx();
+      if (!ctx) return;
       const ring = (freq, start, dur, vol) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -299,10 +313,9 @@
         osc.start(ctx.currentTime + start);
         osc.stop(ctx.currentTime + start + dur + 0.05);
       };
-      ring(2600, 0, 0.5, 0.18);
-      ring(3900, 0.01, 0.45, 0.12);
-      ring(2300, 0.06, 0.4, 0.1);
-      setTimeout(() => ctx.close(), 700);
+      ring(2600, 0, 0.5, 0.28);
+      ring(3900, 0.01, 0.45, 0.2);
+      ring(2300, 0.06, 0.4, 0.16);
     } catch (e) { /* ignore */ }
   }
 
@@ -337,6 +350,7 @@
     toasted = true;
     toastBtn.disabled = true;
 
+    ensureAudioCtx();
     glassesWrap.classList.add('clinked');
 
     setTimeout(() => {
